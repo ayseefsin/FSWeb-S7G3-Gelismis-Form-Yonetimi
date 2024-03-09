@@ -2,6 +2,15 @@ import { useState } from "react";
 import * as yup from "yup";
 
 export const Form = () => {
+  const [formData, SetFormData] = useState({
+    name: "aysin",
+    email: "aysin@aysin.com",
+    password: "12345",
+    kvkk: true,
+  });
+  const [formError, setFormError] = useState({});
+  const [isDisabled, setIsDisabled] = useState(true);
+
   let schema = yup.object().shape({
     name: yup
       .string()
@@ -17,12 +26,38 @@ export const Form = () => {
       .min(6, "password must have at least 6 char"),
     kvkk: yup.boolean().oneOf([true], "kvkk must be checked"),
   });
-  const [formData, SetFormData] = useState({
-    name: "aysin",
-    email: "aysin@aysin.com",
-    password: "12345",
-    kvkk: true,
-  });
+  const validateFormInput = (name, value) => {
+    yup
+      .reach(schema, name)
+      .validate(value)
+      .then((valid) => {
+        console.log(valid);
+        const newError = {
+          ...formError,
+          [name]: null,
+        };
+      })
+      .catch((err) => {
+        console.log(err.name, err.errors);
+        const newError = {
+          ...formError,
+          [name]: err.errors[0],
+        };
+        setFormError(newError);
+      });
+  };
+
+  const validateForm = (formData) => {
+    schema
+      .isValid(formData)
+      .then((valid) => {
+        console.log("validate form: ", valid);
+        setIsDisabled(!valid);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
   const formSubmit = (e) => {
     e.preventDefault();
     console.log(formData);
@@ -30,7 +65,10 @@ export const Form = () => {
   const formChange = (e) => {
     const { name, value, checked, type } = e.target;
     const inputValue = type === "checkbox" ? checked : value;
-    SetFormData({ ...formData, [name]: inputValue });
+    const updatedFormData = { ...formData, [name]: inputValue };
+    SetFormData(updatedFormData);
+    validateFormInput(name, inputValue);
+    validateForm(updatedFormData);
   };
   return (
     <div>
@@ -71,7 +109,9 @@ export const Form = () => {
             checked={formData.kvkk}
           />
         </label>
-        <button type="submit">submit</button>
+        <button disabled={isDisabled} type="submit">
+          submit
+        </button>
       </form>
     </div>
   );
