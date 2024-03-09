@@ -1,13 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as yup from "yup";
+import axios from "axios";
 
-export const Form = () => {
-  const [formData, SetFormData] = useState({
-    name: "aysin",
-    email: "aysin@aysin.com",
-    password: "12345",
-    kvkk: true,
-  });
+export const Form = (props) => {
+  const { addUser, updateUser, editingUser } = props;
+
+  const [formData, SetFormData] = useState(
+    editingUser || {
+      name: "aysin",
+      email: "aysin@aysin.com",
+      password: "12345",
+      kvkk: true,
+    }
+  );
+  useEffect(() => {
+    console.log("useEffect worked");
+    if (editingUser) {
+      SetFormData(editingUser);
+    }
+  }, [editingUser]);
   const [formError, setFormError] = useState({});
   const [isDisabled, setIsDisabled] = useState(true);
 
@@ -61,6 +72,33 @@ export const Form = () => {
   const formSubmit = (e) => {
     e.preventDefault();
     console.log(formData);
+    if (editingUser) {
+      updateUser(
+        axios
+          .post("https://reqres.in/api/users", {
+            formData,
+          })
+          .then(function (response) {
+            console.log(response);
+            updateUser(response.data);
+          })
+          .catch(function (error) {
+            console.log(error);
+          })
+      );
+    } else {
+      axios
+        .post("https://reqres.in/api/users", {
+          formData,
+        })
+        .then(function (response) {
+          console.log(response);
+          addUser(response.data);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    }
   };
   const formChange = (e) => {
     const { name, value, checked, type } = e.target;
