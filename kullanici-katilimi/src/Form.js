@@ -11,8 +11,9 @@ export const Form = () => {
     console.log(formData);
   };
   const formChange = (e) => {
-    const { name, value } = e.target;
-    SetFormData({ ...formData, ["name"]: value });
+    const { name, value, checked, type } = e.target;
+    const inputValue = type === "checkbok" ? checked : value;
+    SetFormData({ ...formData, ["name"]: inputValue });
   };
   return (
     <div>
@@ -50,7 +51,7 @@ export const Form = () => {
             name="kvkk"
             type="checkbox"
             onChange={formChange}
-            value={formData.kvkk}
+            checked={formData.kvkk}
           />
         </label>
         <button type="submit">submit</button>
