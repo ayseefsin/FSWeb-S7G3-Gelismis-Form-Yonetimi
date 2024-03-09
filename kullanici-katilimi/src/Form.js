@@ -1,5 +1,22 @@
 import { useState } from "react";
+import * as yup from "yup";
+
 export const Form = () => {
+  let schema = yup.object().shape({
+    name: yup
+      .string()
+      .required("name is required")
+      .min(3, "name must have at least 3 char"),
+    email: yup
+      .string()
+      .required("email is required")
+      .email("wrong email format"),
+    password: yup
+      .string()
+      .required("password is required")
+      .min(6, "password must have at least 6 char"),
+    kvkk: yup.boolean().oneOf([true], "kvkk must be checked"),
+  });
   const [formData, SetFormData] = useState({
     name: "aysin",
     email: "aysin@aysin.com",
@@ -12,8 +29,8 @@ export const Form = () => {
   };
   const formChange = (e) => {
     const { name, value, checked, type } = e.target;
-    const inputValue = type === "checkbok" ? checked : value;
-    SetFormData({ ...formData, ["name"]: inputValue });
+    const inputValue = type === "checkbox" ? checked : value;
+    SetFormData({ ...formData, [name]: inputValue });
   };
   return (
     <div>
